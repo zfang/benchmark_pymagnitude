@@ -40,12 +40,21 @@ def run_benchmark(vector, words, reversed_words):
     vector.query(reversed_words)
 
 
-def main():
+def log_sys_stats():
     pid = os.getpid()
     ps = psutil.Process(pid)
+    print(ps.cpu_times())
+    print(ps.memory_info())
+    try:
+        print(ps.io_counters())
+    except:
+        pass
+
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input-file', required=True)
-    parser.add_argument('-m', '--mode', choices=['stats', 'benchmark'], default='stats')
+    parser.add_argument('-m', '--mode', choices=['stats', 'benchmark', 'raw'], default='stats')
     parser.add_argument('-n', '--benchmark-runs', type=int, default=10)
     parser.add_argument('-l', '--limit', type=int, default=0)
     parser.add_argument('--magnitude-model', default='glove/medium/glove.twitter.27B.25d')
@@ -63,15 +72,18 @@ def main():
 
     if args.mode == 'stats':
         log_stats(vector, words, reversed_words)
+        log_sys_stats()
     elif args.mode == 'benchmark':
         times = repeat(lambda: run_benchmark(vector, words, reversed_words), repeat=args.benchmark_runs, number=1)
         print(pd.DataFrame(dict(time=times)).describe(percentiles=[.25, .5, .75, .9, .99]))
-    print(ps.cpu_times())
-    print(ps.memory_info())
-    try:
-        print(ps.io_counters())
-    except:
-        pass
+        log_sys_stats()
+    elif args.mode == 'raw':
+        output = vector.query(words)
+        output_reverse = vector.query(reversed_words)
+        print(output)
+        print(output_reverse)
+    else:
+        raise NotImplementedError(args.mode)
 
 
 if __name__ == '__main__':

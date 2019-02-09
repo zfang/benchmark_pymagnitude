@@ -10,15 +10,20 @@ pip install -r requirements.txt
 
 ## Patch `pymagnitude`
 ```
-sh patch_pymagnitude.sh
+./patch_pymagnitude.sh
 ```
 
 ## Reverse patch `pymagnitude`
 ```
-sh patch_pymagnitude.sh -R
+./patch_pymagnitude.sh -R
 ```
 
 ## Run help
 ```
 python main.py -h
+```
+
+## Compare vectors before and after the patch
+```
+./compare.sh medium_words.txt
 ```
