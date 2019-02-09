@@ -1,0 +1,3 @@
+pymagnitude==0.1.120
+pandas
+psutil

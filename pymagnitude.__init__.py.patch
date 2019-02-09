@@ -1,0 +1,36 @@
+1068a1069
+>         cached_vectors = {key: self._query_cached(key, normalized, force) for key in keys}
+1070c1071
+<             key for key in keys if not self._query_is_cached(key, normalized))
+---
+>             key for key in keys if cached_vectors[key] is None)
+1109,1110c1110,1111
+<                         unseen_keys[i], normalized, force=force)
+<         vectors = [self.query(key, normalized=normalized)
+---
+>                         unseen_keys[i], normalized=normalized, force=force)
+>         vectors = [cached_vectors[key]
+1211c1212
+<             vec = self._vector_for_key_cached(q, normalized)
+---
+>             vec = self._vector_for_key_cached(q, normalized=normalized)
+1213c1214
+<                 return self._out_of_vocab_vector_cached(q, normalized)
+---
+>                 return self._out_of_vocab_vector_cached(q, normalized=normalized)
+1308c1309
+<     def _query_is_cached(self, key, normalized=None):
+---
+>     def _query_cached(self, key, normalized=None, force=False):
+1311,1312c1312,1315
+<         return ((self._vector_for_key_cached._cache.get((key, frozenset([('normalized', normalized)]))) is not None) or (  # noqa
+<             self._out_of_vocab_vector_cached._cache.get((key, frozenset([('normalized', normalized)]))) is not None))  # noqa
+---
+>         cached = self._vector_for_key_cached._cache.get(((key,), frozenset([('normalized', normalized)])))
+>         if cached is not None:
+>             return cached
+>         return self._out_of_vocab_vector_cached._cache.get(((key,), frozenset([('normalized', normalized), ('force', force)])))
+1909c1912
+<         return self._vector_for_key_cached(key) is not None
+---
+>         return self._vector_for_key_cached(key, normalized=self.normalized) is not None
